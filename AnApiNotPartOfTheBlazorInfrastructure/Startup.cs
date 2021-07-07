@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 
 namespace AnApiNotPartOfTheBlazorInfrastructure
 {
@@ -31,6 +32,14 @@ namespace AnApiNotPartOfTheBlazorInfrastructure
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(policy =>
+            {
+                policy.WithOrigins(Configuration["AllowedOrigins"])
+                      .AllowAnyMethod()
+                      .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+                      .AllowCredentials();
+            });
 
             app.UseAuthorization();
 

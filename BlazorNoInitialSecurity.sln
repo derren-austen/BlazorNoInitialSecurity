@@ -11,6 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorHosted.Shared", "Blaz
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnApiNotPartOfTheBlazorInfrastructure", "AnApiNotPartOfTheBlazorInfrastructure\AnApiNotPartOfTheBlazorInfrastructure.csproj", "{DA96390B-6828-4330-91A3-9E8497BE6EE5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution bits", "Solution bits", "{F323A83E-FE9F-46FF-ADF9-9CB195993ECD}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		add-dev-config-settings.ps1 = add-dev-config-settings.ps1
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -23,3 +23,16 @@ Foreach ($destination in $destinations)
         Copy-Item $sourceFile -Destination $destination
     }
 }
+
+# WASM client app
+
+$sourceFile = '.\BlazorHosted\Client\wwwroot\appsettings.json'
+$destinations = '.\BlazorHosted\Client\wwwroot\appsettings.Development.json'
+
+Foreach ($destination in $destinations)
+{
+    if (-not (test-path $destination))
+    {
+        Copy-Item $sourceFile -Destination $destination
+    }
+}
