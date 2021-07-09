@@ -201,4 +201,4 @@ Copy `appRoles` and replace the same section in the API application with this ve
 
 This section in the API application's manifest will be empty.
 
-![empty app roles in manifest](./images/app-roles-empty.png)
+![empty app roles in manifest](./blob/main/images/app-roles-empty.png)
