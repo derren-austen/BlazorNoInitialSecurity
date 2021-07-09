@@ -73,22 +73,22 @@ Let's head over to the Azure [portal](https://portal.azure.com).
 
 Search for Azure Active Directory.  Click on the service.
 
-![search for aad](./images/search-aad.png)
+![search for aad](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/search-aad.png)
 
 Under Manage, click on App registrations.
 
-![app registrations](./images/app-registrations.png)
+![app registrations](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/app-registrations.png)
 
 Let's add an app registration for the **client app**.
 
-![new registration](./images/new-registration.png)
+![new registration](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/new-registration.png)
 
 Add a name.  
 Leave the Supported account types as Single tenant.  
 Make sure the client type is Single-page application (SPA).  
 Add a redirect URI.  Use `https://localhost:5001/authentication/login-callback`.
 
-![add registration](./images/add-registration.png)
+![add registration](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-registration.png)
 
 Select Register to create the app registration.
 
@@ -98,15 +98,15 @@ Under Manage click on Authentication.
 
 Make sure the two checkboxes under Implicit grant and hybrid flows are **NOT** checked.
 
-![implicit and hybrid not checked](./images/implicit-hybrid-not-checked.png)
+![implicit and hybrid not checked](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/implicit-hybrid-not-checked.png)
 
 Under Manage click on API permissions.
 
-![client api permissions](./images/client-manage-perms.png)
+![client api permissions](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/client-manage-perms.png)
 
 Click on Grant admin consent for Default Directory.
 
-![grant admin consent](./images/grant-admin-consent.png)
+![grant admin consent](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/grant-admin-consent.png)
 
 > Default Directory in these example is just the name of the tenant.  Yours will most likely have a different name.
 
@@ -116,11 +116,11 @@ The default `User.Read` permission, or scope, will then automatically be consent
 
 Click Yes under Grant admin consent confirmation.
 
-![yes to consent](./images/consent-yes.png)
+![yes to consent](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/consent-yes.png)
 
 Notice the Status for this permission has changed to Granted for Default Directory.
 
-![consent granted](./images/consent-granted.png)
+![consent granted](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/consent-granted.png)
 
 We shall return to the client app registration later!
 
@@ -132,23 +132,23 @@ Add a name.
 Leave the Supported account types as Single tenant.  
 As this is an API app there are no authentication flows so just fill in these details.
 
-![add api registration](./images/add-api-registration.png)
+![add api registration](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-api-registration.png)
 
 This App registration exposes an API and defines roles for the API project authorization. An **access_as_user** scope is added to the Azure App registration which is a delegated scope type.
 
 Under Manage, click on Expose an API.
 
-![expose an api](./images/expose-api.png)
+![expose an api](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/expose-api.png)
 
 Click on Add a scope.
 
-![add a scope](./images/add-scope.png)
+![add a scope](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-scope.png)
 
 Click Save and continue to accept the auto-generated Application ID URI.
 
 Populate the Edit a scope section as below.
 
-![edit scope](./images/edit-scope.png)
+![edit scope](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/edit-scope.png)
 
 With the API app now in-place let's head back to the client app registration.
 
@@ -158,17 +158,17 @@ Under Manage, click on API permissions.
 
 Click on Add a permission.
 
-![add a permission](./images/add-permission.png)
+![add a permission](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-permission.png)
 
 Select My APIs.  
 Find the API we just created, click on it and select the `access_as_a_user` permission.
 
-![request permissions](./images/client-request-perms.png)
+![request permissions](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/client-request-perms.png)
 
 Click on the Grant admin consent for Default Directory once again.  
 The will ensure the `access_as_a_user` scope is granted accordingly.
 
-![access as a user granted permission](./images/access-as-user-granted-perm.png)
+![access as a user granted permission](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/access-as-user-granted-perm.png)
 
 ## Add application roles
 
@@ -177,15 +177,15 @@ Application roles need to be added to the client and API applications.
 
 Under Manage, click on App roles.
 
-![app roles](./images/manage-app-roles.png)
+![app roles](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/manage-app-roles.png)
 
 Click on Create app role.
 
-![create app role](./images/create-app-role.png)
+![create app role](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/create-app-role.png)
 
 Populate the Create app role section.
 
-![](./images/create-app-role-details.png)
+![](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/create-app-role-details.png)
 
 Once the appropriate roles have been created in the client application the identical roles also need to be created in the API application.
 
@@ -193,12 +193,12 @@ The easiest way to do this is to copy the `appRoles` property from the manifest.
 
 Under Manage, click on Manifest.
 
-![manifest](./images/manifest.png)
+![manifest](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/manifest.png)
 
 Copy `appRoles` and replace the same section in the API application with this version.
 
-![app roles in manifest](./images/app-roles-manifest.png)
+![app roles in manifest](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/app-roles-manifest.png)
 
 This section in the API application's manifest will be empty.
 
-![empty app roles in manifest](./blob/main/images/app-roles-empty.png)
+![empty app roles in manifest](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/app-roles-empty.png)
