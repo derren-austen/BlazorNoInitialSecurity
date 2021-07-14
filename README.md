@@ -202,3 +202,32 @@ Copy `appRoles` and replace the same section in the API application with this ve
 This section in the API application's manifest will be empty.
 
 ![empty app roles in manifest](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/app-roles-empty.png)
+
+## Add application roles to users
+
+From the Active Directory blade, under Manage, click Enterprise applications.
+
+![manage enterprise applications](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/manage-enterprise-apps.png)
+
+**You'll need to add users to the appropriate roles in the client and API apps.**
+
+Click on the client app registration.
+
+Under Manage, click on Users and groups.
+
+![users and groups](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/users-and-groups.png)
+
+Now click on Add user/group.
+
+![add a user](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-user-group.png)
+
+From the Add Assignment page select a user and a role.
+
+Before:  
+![add roles before](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-roles-before.png)
+
+After:  
+![add roles after](https://raw.githubusercontent.com/derren-austen/BlazorNoInitialSecurity/main/Images/add-roles-after.png)
+
+**This process has to be repeated if multiple roles need to be added to a user**
+
