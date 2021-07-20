@@ -1,6 +1,11 @@
 ﻿@page "/fetchdata"
+
+@attribute [Authorize(Roles = "Villa.Admin")]
+
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using BlazorHosted.Shared
-@inject HttpClient Http
+
+@inject IHttpClientFactory ClientFactory
 
 <h1>Weather forecast</h1>
 
@@ -40,7 +45,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        try
+        {
+            var client = ClientFactory.CreateClient("ServerApi");
+
+            forecasts = await client.GetFromJsonAsync<WeatherForecast[]>(@"https://localhost:44303/WeatherForecast");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
     }
 
 }

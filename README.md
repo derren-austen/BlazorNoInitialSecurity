@@ -231,3 +231,296 @@ After:
 
 **This process has to be repeated if multiple roles need to be added to a user**
 
+## Server app configuration
+
+The support for authenticating and authorizing calls to ASP.NET Core web APIs with the Microsoft Identity Platform is provided by the `Microsoft.Identity.Web` package.
+
+```xml
+<PackageReference Include="Microsoft.Identity.Web" Version="{VERSION}" />
+```
+
+The `AddAuthentication` method sets up authentication services within the app and configures the JWT Bearer handler as the default authentication method. The `AddMicrosoftIdentityWebApi` method configures services to protect the web API with Microsoft Identity Platform v2.0. This method expects an `AzureAd` section in the app's configuration with the necessary settings to initialize authentication options.
+
+Add the following to `ConfigureServices` in `Startup.cs`
+
+```c#
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+```
+
+Add an `AzureAd` setting to `appsettings.json`.
+
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "Domain": "{DOMAIN}",
+    "TenantId": "{TENANT ID}",
+    "ClientId": "{SERVER API APP CLIENT ID}",
+    "CallbackPath": "/signin-oidc"
+  }
+}
+```
+
+Update the `Configure` method in `Startup.cs`.
+
+```c#
+app.UseAuthentication();
+app.UseAuthorization();
+```
+
+**The authentication call must go before authorisation.**
+
+The `WeatherForecast` controller exposes a protected API with the `Authorize` attribute.
+
+This attribute can be applied to action methods individually or the controller.
+
+Applied to an action method:
+```c#
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
+{
+    [Authorize]
+    [HttpGet]
+    public IEnumerable<WeatherForecast> Get()
+    {
+        ...
+    }
+}
+```
+
+Applied to the controller:
+```c#
+[Authorize]
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
+{
+    [HttpGet]
+    public IEnumerable<WeatherForecast> Get()
+    {
+        ...
+    }
+}
+```
+
+Here's an example using roles:
+```c#
+[Authorize(Roles = "PowerUser")]
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
+{
+    [HttpGet]
+    public IEnumerable<WeatherForecast> Get()
+    {
+        ...
+    }
+}
+```
+
+## Client app configuration
+
+Add the `Microsoft.Authentication.WebAssembly.Msal` authentication package.
+
+```xml
+<PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" 
+  Version="{VERSION}" />
+```
+
+This package provides a set of primitives that help the app authenticate users and obtain tokens to call protected APIs.
+
+Support for `HttpClient` instances is added that include access tokens when making requests to the server project.
+
+Replace this line in `Program.cs` from a previous step:
+```c#
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["BaseApiAddress"]) });
+```
+
+With the following:
+```c#
+builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
+
+builder.Services
+       .AddHttpClient("ServerApi", client => client.BaseAddress = new Uri(builder.Configuration["BaseApiAddress"]))
+       .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
+
+builder.Services
+       .AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+       .CreateClient("ServerApi"));
+```
+
+You must also add the `Microsoft.Extensions.Http` package.
+
+The `CustomAuthorizationMessageHandler` adds the scope, `access_as_user`, we created previously.
+
+Support for authenticating users is registered in the service container with the `AddMsalAuthentication` extension method provided by the `Microsoft.Authentication.WebAssembly.Msal` package.
+
+`Program.cs`:
+```c#
+builder.Services.AddMsalAuthentication(options =>
+{
+    builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
+
+    options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["UserScope"]);
+});
+```
+
+Add an `AzureAd` and `UserScope` setting to `wwwroot\appsettings.json`.
+
+```json
+{
+  "AzureAd": {
+    "Authority": "https://login.microsoftonline.com/{TENANT ID}",
+    "ClientId": "{CLIENT APP CLIENT ID}",
+    "ValidateAuthority": true
+  },
+  "UserScope": "api://probably-a-guid/access_as_user"
+}
+```
+
+To use the `ClaimsPrincipal.IsInRole` method we need to do a bit of claims transformation.  
+`CustomUserFactory.cs` does this work.
+
+`Program.cs`:
+```c#
+builder.Services.AddApiAuthorization<RemoteAuthenticationState, RemoteUserAccount>()
+       .AddAccountClaimsPrincipalFactory<RemoteAuthenticationState, RemoteUserAccount, CustomUserFactory>();
+```
+
+Update `_imports.razor`:
+```c#
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+```
+
+Index page - `wwwroot/index.html`:
+```html
+<script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
+```
+
+App component - `App.razor`.  
++ The `CascadingAuthenticationState` component manages exposing the `AuthenticationState` to the rest of the app.
++ The `AuthorizeRouteView` component makes sure that the current user is authorized to access a given page or otherwise renders the `RedirectToLogin` component.
++ The `RedirectToLogin` component manages redirecting unauthorized users to the login page.
+
+Replace:
+```html
+<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p>Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+```
+
+With:
+```html
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @if (!context.User.Identity.IsAuthenticated)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <p>
+                            You are not authorized to access 
+                            this resource.
+                        </p>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+```
+
+Redirect to login component - `Shared/RedirectToLogin.razor`.
+
++ Manages redirecting unauthorized users to the login page.
++ Preserves the current URL that the user is attempting to access so that they can be returned to that page if authentication is successful.
+
+```c#
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@code {
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo(
+            $"authentication/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+    }
+}
+```
+
+Login display component - `Shared/LoginDisplay.razor`
+
+This is rendered in the `MainLayout` component (`Shared/MainLayout.razor`) and manages the following behaviors:
++ For authenticated users:
+   + Displays the current username.
+   + Offers a button to log out of the app.
++ For anonymous users, offers the option to log in.
+
+```c#
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+
+<AuthorizeView>
+    <Authorized>
+        Hello, @context.User.Identity.Name!
+        <button class="nav-link btn btn-link" @onclick="BeginLogout">Log out</button>
+    </Authorized>
+    <NotAuthorized>
+        <a href="authentication/login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    private async Task BeginLogout(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+}
+
+```
+
+This can then be dropped into the `MainLayout` component (e.g. `<LoginDisplay />`).
+
+Authentication component - `Pages/Authentication.razor`
+
+The page produced by the Authentication component defines the routes required for handling different authentication stages.
+
+The `RemoteAuthenticatorView` component:
+
++ Is provided by the `Microsoft.AspNetCore.Components.WebAssembly.Authentication` package.
++ Manages performing the appropriate actions at each stage of authentication.
+
+```c#
+@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+<RemoteAuthenticatorView Action="@Action" />
+
+@code {
+    [Parameter]
+    public string Action { get; set; }
+}
+```
+
