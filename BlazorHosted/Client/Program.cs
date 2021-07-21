@@ -18,13 +18,19 @@ namespace BlazorHosted.Client
 
             builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
 
+            // You can use either a named OR a typed HttpClient
+
+            // A named HTTP client - see FetchData.razor
+
             builder.Services
                    .AddHttpClient("ServerApi", client => client.BaseAddress = new Uri(builder.Configuration["BaseApiAddress"]))
                    .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
 
+            // A typed HTTP client - see WeatherForecastHttpClient.cs and FetchData2.razor
+
             builder.Services
-                   .AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-                   .CreateClient("ServerApi"));
+                   .AddHttpClient<WeatherForecastHttpClient>(client => client.BaseAddress = new Uri(builder.Configuration["BaseApiAddress"]))
+                   .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
 
             builder.Services.AddMsalAuthentication(options =>
             {

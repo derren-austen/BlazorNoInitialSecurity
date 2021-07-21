@@ -1,8 +1,8 @@
-﻿@page "/fetchdata"
+﻿@page "/fetchdata2"
 
 @attribute [Authorize(Roles = "Villa.Admin")]
 
-@inject IHttpClientFactory ClientFactory
+@inject WeatherForecastHttpClient Http
 
 <h1>Weather forecast</h1>
 
@@ -58,16 +58,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var client = ClientFactory.CreateClient("ServerApi");
-
-            forecasts = await client.GetFromJsonAsync<WeatherForecast[]>(@"https://localhost:44303/WeatherForecast");
-        }
-        catch (AccessTokenNotAvailableException exception)
-        {
-            exception.Redirect();
-        }
+        forecasts = await Http.GetForecastAsync();
     }
 
 }

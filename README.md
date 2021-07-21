@@ -345,10 +345,6 @@ builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
 builder.Services
        .AddHttpClient("ServerApi", client => client.BaseAddress = new Uri(builder.Configuration["BaseApiAddress"]))
        .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
-
-builder.Services
-       .AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-       .CreateClient("ServerApi"));
 ```
 
 You must also add the `Microsoft.Extensions.Http` package.
