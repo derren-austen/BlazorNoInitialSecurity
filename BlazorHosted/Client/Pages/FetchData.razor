@@ -62,7 +62,7 @@ else
         {
             var client = ClientFactory.CreateClient("ServerApi");
 
-            forecasts = await client.GetFromJsonAsync<WeatherForecast[]>(@"https://localhost:44303/WeatherForecast");
+            forecasts = await client.GetFromJsonAsync<WeatherForecast[]>(@"WeatherForecast");
         }
         catch (AccessTokenNotAvailableException exception)
         {

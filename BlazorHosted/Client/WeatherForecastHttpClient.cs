@@ -21,7 +21,7 @@ namespace BlazorHosted.Client
         {
             try
             {
-                return await _http.GetFromJsonAsync<WeatherForecast[]>(@"https://localhost:44303/WeatherForecast");
+                return await _http.GetFromJsonAsync<WeatherForecast[]>(@"WeatherForecast");
             }
             catch (AccessTokenNotAvailableException exception)
             {
